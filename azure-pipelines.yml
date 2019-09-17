@@ -1,0 +1,15 @@
+trigger:
+- master
+- task/*
+
+pool:
+  vmImage: 'windows-latest'
+
+steps:
+- task: cake-build.cake.cake-build-task.Cake@0
+  displayName: 'Build with Cake'
+  inputs:
+    script: build/build.cake
+    configuration: 'Release'
+- publish: '$(Build.SourcesDirectory)/build/artifacts'
+  artifact: 'Zupa Authentication Artifact'

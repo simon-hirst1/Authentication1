@@ -1,0 +1,131 @@
+﻿@using IdentityServer4.EntityFramework.Mappers
+
+@model AdminViewModel
+@{
+    ViewData["Title"] = "Admin Management";
+}
+
+<h2>Client Management</h2>
+<br />
+<h4>Registered Clients</h4>
+@if (Model.Clients?.Any() == true)
+{
+    <table class="table">
+        <tbody>
+            @foreach (var client in Model.Clients)
+            {
+                <tr>
+                    <td>@(client.ClientName ?? client.ClientId)</td>
+                    <td>
+                        @if (Model.IsRemoveButtonVisibleForClients)
+                        {
+                            <form asp-controller="Admin" asp-action="UpdateClient" method="get" style="display: inline">
+                                <input asp-for="@client.Id" name="Id" type="hidden"/>
+                                <button type="submit" value="@client.Id" class="btn btn-default" title="Update this @client.ClientName client in Zupa Authentication">Update</button>
+                            </form>
+                            <form asp-controller="Admin" asp-action="RemoveClient" method="post" style="display: inline">
+                                <input asp-for="@client.Id" name="Id" type="hidden" />
+                                <button type="submit" value="@client.Id" class="btn btn-default" title="Remove this @client.ClientName client from Zupa Authentication">Remove</button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+<br />
+<h4>Add another client.</h4>
+<hr />
+<a asp-controller="Admin" id="add_client_button" asp-action="AddClient" class="btn-bracketed">Add Client</a>
+<br />
+<a asp-controller="Admin" id="add_test_client_button" asp-action="AddTestClient" class="btn-bracketed">Add Test Client</a>
+<br />
+<h2>API Resource Management</h2>
+<br />
+<h4>Registered API Resources</h4>
+@if (Model.ApiResources?.Any() == true)
+{
+    <table class="table">
+        <tbody>
+            @foreach (var apiResource in Model.ApiResources)
+            {
+                <tr>
+                    <td>@(apiResource.DisplayName ?? apiResource.Name)</td>
+
+                    <td>
+                        @if (Model.IsRemoveButtonVisibleForApiResources)
+                        {
+                            <form asp-controller="Admin" asp-action="UpdateApiResource" method="get" style="display: inline">
+                                <input asp-for="@apiResource.Name" name="Name" type="hidden" />
+                                <button type="submit" value="@apiResource.Name" class="btn btn-default" title="Update this @apiResource.DisplayName resource in Zupa Authentication">Update</button>
+                            </form>
+                            <form asp-controller="Admin" asp-action="RemoveApiResource" method="post" style="display: inline">
+                                <input asp-for="@apiResource.Name" name="Name" type="hidden" />
+                                <button type="submit" value="@apiResource.Name" class="btn btn-default" title="Remove this @apiResource.DisplayName resource from Zupa Authentication">Remove</button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+<br />
+<h4>Add another API Resource.</h4>
+<hr />
+<a asp-controller="Admin" id="add_api_resource_button" asp-action="AddApiResource" class="btn-bracketed">Add Api Resource</a>
+<br />
+<h2>Identity Resource Management</h2>
+<br />
+<h4>Registered Identity Resources</h4>
+@if (Model.RegisteredIdentityResources?.Any() == true)
+{
+    <table class="table">
+        <tbody>
+            @foreach (var identityResource in Model.RegisteredIdentityResources)
+            {
+                <tr>
+                    <td>@identityResource.Name</td>
+
+                    <td>
+                        <form asp-action="RemoveIdentityResource" method="post">
+                            <div>
+                                <input asp-for="@identityResource.Id" name="Id" type="hidden" />
+                                <input asp-for="@identityResource.Name" name="Name" type="hidden" />
+                                <button type="submit" id="@identityResource" class="btn btn-default" title="Remove this @identityResource.Name resource from Zupa Authentication">Remove</button>
+                            </div>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+<h4>Add another Identity Resource.</h4>
+@if (Model.IdentityResources?.Any() == true)
+{
+    <table class="table">
+        <tbody>
+        @foreach (var identityResource in Model.IdentityResources)
+        {
+            if (!Model.RegisteredIdentityResources.Any(i => i.Name == identityResource.ToEntity().Name))
+            {
+                <tr>
+                    <td>@identityResource.Name</td>
+
+                    <td>
+                        <form asp-action="AddIdentityResource" method="post">
+                            <div>
+                                <input asp-for="@identityResource.Name" name="Name" type="hidden"/>
+                                <button type="submit" id="@identityResource" class="btn btn-default" title="Add this @identityResource.Name resource to Zupa Authentication">Add</button>
+                            </div>
+                        </form>
+
+                    </td>
+                </tr>
+            }
+        }
+        </tbody>
+    </table>
+}

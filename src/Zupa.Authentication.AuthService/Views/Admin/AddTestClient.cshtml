@@ -1,0 +1,48 @@
+﻿@model TestClientViewModel
+@{
+    ViewData["Title"] = "Add Test Client";
+}
+
+<h2>Add Test Client</h2>
+<br />
+<form asp-action="AddTestClient">
+    <div class="form-horizontal">
+        <div class="form-group">
+            <label asp-for="ClientId" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="ClientId" class="form-control" />
+                <span asp-validation-for="ClientId" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="ClientName" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="ClientName" class="form-control" />
+                <span asp-validation-for="ClientName" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="ClientSecret" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="ClientSecret" class="form-control" type="password" />
+                <span asp-validation-for="ClientSecret" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="ApiScopes" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="ApiScopes" class="form-control" />
+                <span asp-validation-for="ApiScopes" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <button type="submit" value="Add" class="btn btn-default"> Add Me </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.2.0.min.js"></script>
+<script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.16.0/jquery.validate.min.js"></script>
+<script src="https://ajax.aspnetcdn.com/ajax/jquery.validation.unobtrusive/3.2.6/jquery.validate.unobtrusive.min.js"></script>

@@ -1,0 +1,19 @@
+﻿@{
+    ViewData["Title"] = "Verify Email";
+    Layout = "_AccountLayout";
+}
+
+<div class="d-flex justify-content-center">
+    <h4>Verify Email</h4>
+</div>
+<hr />
+<div class="d-flex flex-column justify-content-center text-center">
+    <div class="alert alert-info">
+        We have sent you an email, please click on the link in that email to verify your account.
+    </div>
+    <ul class="list-group align-items-center">
+        <li class="list-group-item d-flex justify-content-center">
+            <a id="link" asp-area="" asp-controller="Account" asp-action="Login">Back to log in</a>
+        </li>
+    </ul>
+</div>

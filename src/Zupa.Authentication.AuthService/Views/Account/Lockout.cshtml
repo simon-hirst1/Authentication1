@@ -1,0 +1,13 @@
+﻿
+@{
+    ViewData["Title"] = "Lockout";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<br/>
+<header>
+    <div class="alert alert-danger">
+        <h2 class="text-danger">Locked Out</h2>
+        <p>Too many failed login attempts have caused this account to be locked for @ViewData["LockoutTimeSpan"] minutes, please try again later</p>
+    </div>
+</header>
+

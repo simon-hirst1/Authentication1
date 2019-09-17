@@ -1,0 +1,69 @@
+﻿@model ClientViewModel
+@{
+    ViewData["Title"] = "Update Client";
+}
+
+<h2>Update Client</h2>
+<br />
+<form asp-action="UpdateClient">
+    <div class="form-horizontal">
+        <input asp-for="Id" class="form-control" type="hidden" />
+        <div class="form-group">
+            <label asp-for="ClientId" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="ClientId" class="form-control" />
+                <span asp-validation-for="ClientId" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="ClientName" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="ClientName" class="form-control" />
+                <span asp-validation-for="ClientName" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="AllowAccessTokensViaBrowser" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="AllowAccessTokensViaBrowser" class="checkbox" checked="@Model.AllowAccessTokensViaBrowser" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="CorsOrigin" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="CorsOrigin" class="form-control" />
+                <span asp-validation-for="CorsOrigin" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="RedirectUri" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="RedirectUri" class="form-control" />
+                <span asp-validation-for="RedirectUri" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="PostLogoutRedirectUri" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="PostLogoutRedirectUri" class="form-control" />
+                <span asp-validation-for="PostLogoutRedirectUri" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="ApiScopes" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="ApiScopes" class="form-control" />
+                <span asp-validation-for="ApiScopes" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <button type="submit" id="@Model" class="btn btn-default"> Update Me </button>
+            </div>
+        </div>
+    </div>
+</form>
+<div>
+    <a asp-controller="Admin" asp-action="Index" class="btn-bracketed">Back</a>
+</div>

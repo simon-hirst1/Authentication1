@@ -1,0 +1,20 @@
+﻿@model LogoutViewModel
+@{
+    ViewData["Title"] = "Logout";
+    Layout = "_AccountLayout";
+}
+
+<div class="d-flex justify-content-center">
+    <h2>Logout</h2>
+</div>
+<hr />
+<div class="d-flex flex-column justify-content-center align-items-center text-center">
+    <p>Would you like to logout of Zupa?</p>
+    <form asp-action="Logout" class="w-75">
+        <input type="hidden" name="logoutId" value="@Model.LogoutId" />
+        <div class="form-group d-flex justify-content-center align-items-center">
+            <button id="submit" type="submit" class="btn btn-primary mr-2">Yes</button>
+            <button id="back" type="button" class="btn btn-danger mr-2" onclick="history.back();">No</button>
+        </div>
+    </form>
+</div>

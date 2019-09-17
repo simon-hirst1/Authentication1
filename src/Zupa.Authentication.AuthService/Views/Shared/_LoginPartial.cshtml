@@ -1,0 +1,24 @@
+@using Zupa.Authentication.Common
+@inject SignInManager<IdentityUser> SignInManager
+
+@{
+    bool signedOut = ViewData["signed-out"] != null && (bool)ViewData["signed-out"];
+}
+@if (SignInManager.IsSignedIn(User) && !signedOut)
+{
+<ul class="nav navbar-nav navbar-right">
+    <li><a id="logout" asp-area="" asp-controller="Account" asp-action="Logout" method="get">Logout</a></li>
+    <li><a id="link" asp-area="" asp-controller="Account" asp-action="LinkAccount">Link Account</a></li>
+    @if (User.IsInRole(RoleConstants.AdminRole))
+    {
+        <li><a id="admin" asp-area="" asp-controller="Admin" asp-action="Index">Admin Management</a></li>
+    }
+</ul>
+}
+else
+{
+    <ul class="nav navbar-nav navbar-right">
+        <li><a id="register" asp-area="" asp-controller="Account" asp-action="Register">Register</a></li>
+        <li><a id="login" asp-area="" asp-controller="Account" asp-action="Login">Log in</a></li>
+    </ul>
+}

@@ -1,0 +1,389 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "ServicePlanSku": {
+            "type": "string",
+            "defaultValue": "D1",
+            "metadata": {
+                "description": "Describes the plan's pricing tier and capacity."
+            },
+            "allowedValues": [
+                "F1",
+                "D1",
+                "B1",
+                "B2",
+                "B3",
+                "S1",
+                "S2",
+                "S3",
+                "P1v2",
+                "P2v2",
+                "P3v2",
+                "I1",
+                "I2",
+                "I3"
+              ]
+        },
+        "ServiceBusSku": {
+            "type": "string",
+            "defaultValue": "Standard",
+            "metadata": {
+                "description": "Describes the service bus pricing plan."
+            },
+            "allowedValues": [
+                "Basic",
+                "Standard",
+                "Premium"
+            ]
+        },
+        "AuthenticationWebsiteName": {
+            "type": "string",
+            "defaultValue": "zupaauthentication",
+            "metadata": {
+                "description": "The name of the Zupa authentication website."
+            }
+        },
+        "SqlServerAdminName": {
+            "type": "string",
+            "metadata": {
+                "description": "The admin name for the SQL Server instance."
+            },
+            "defaultValue": "sqladmin"
+        },
+        "SqlServerAdminPassword": {
+            "type": "string",
+            "metadata": {
+                "description": "The password for the SQL Server instance."
+            },
+            "defaultValue": "SqlPassword0-"
+        },
+        "AuthenticationTopicName": {
+            "type": "string",
+            "defaultValue": "authentication"
+        },
+        "Environment": {
+            "type": "string",
+            "allowedValues": [
+                "dev",
+                "test",
+                "prod"
+            ],
+            "defaultValue": "dev"
+        },
+        "ApplicationInsightsLocation": {
+            "type": "string",
+            "defaultValue": "West Europe",
+            "allowedValues": [
+                "Canada Central",
+                "Central India",
+                "East US",
+                "North Europe",
+                "South Central US",
+                "Southeast Asia",
+                "West Europe",
+                "West US 2"
+            ]
+        }
+    },
+    "variables":{  
+        "releaseRoleIds":[
+          {
+            "role":"b24988ac-6180-42a0-ab88-20f7382dd24c",
+            "principal":"6f2e4c90-5e5f-4cc6-9ecf-7818f65d78a8"
+          },
+          {
+            "role":"b24988ac-6180-42a0-ab88-20f7382dd24c",
+            "principal":"991f5bbd-49ba-43e4-9f31-8e2a5fd1b8a9"
+          }
+        ],
+        "productionRoleIds":[
+          {
+            "role":"acdd72a7-3385-48ef-bd42-f606fba81ae7",
+            "principal":"2181f11f-1681-4a28-97fb-630d3852bab1"
+          },
+          {
+            "role":"18d1cd87-f757-411a-9fc4-76a2e04c087c",
+            "principal":"2181f11f-1681-4a28-97fb-630d3852bab1"
+          },
+          {
+            "role":"acdd72a7-3385-48ef-bd42-f606fba81ae7",
+            "principal":"556403a1-0d6c-45b4-a4d0-29161ecfb8f2"
+          },
+          {
+            "role":"18d1cd87-f757-411a-9fc4-76a2e04c087c",
+            "principal":"556403a1-0d6c-45b4-a4d0-29161ecfb8f2"
+          },
+          {
+            "role":"b24988ac-6180-42a0-ab88-20f7382dd24c",
+            "principal":"2181f11f-1681-4a28-97fb-630d3852bab1",
+            "remark":"This role should be removed once the service goes live to the general public."
+          }
+        ],
+        "selectedRoleIds": "[if(equals(parameters('Environment'), 'test'), variables('releaseRoleIds'), variables('productionRoleIds'))]",
+        "nonce": "[substring(uniqueString(resourceGroup().id), 0, 5)]",
+        "suffix": "[if(equals(parameters('Environment'), 'prod'), parameters('Environment'), concat(parameters('Environment'), variables('nonce')))]",
+        "baseName": "[concat(parameters('AuthenticationWebsiteName'), variables('suffix'))]",
+        "websiteName": "[concat(variables('baseName'), 'as')]",
+        "appInsightsName": "[concat(variables('baseName'), 'ai')]",
+        "servicePlanName": "[concat(variables('baseName'), 'asp')]",
+        "sqlServerName": "[concat(variables('baseName'), 'sql')]",
+        "databaseName": "[parameters('AuthenticationWebsiteName')]",
+        "sqlServerAdminName": "[if(equals(parameters('SqlServerAdminName'), ''), concat('admin', uniqueString(resourceGroup().id)), parameters('SqlServerAdminName'))]",
+        "sqlServerAdminPassword": "[if(equals(parameters('SqlServerAdminPassword'), ''), concat('Pwd', uniqueString(resourceGroup().id, '53C1D77F-1A36-47E0-9BED-14FE0FEE01A9'), '_1'), parameters('SqlServerAdminPassword'))]",
+        "whitelistCosmosDbName": "[concat(variables('baseName'), 'tcdb')]",
+        "authenticationServiceBusName": "[concat(variables('baseName'), 'authenticationsb')]",
+        "authenticationServiceSubscriptionName": "authenticationService",
+        "serviceBusApiVersion": "2015-08-01",
+        "firewallIpAddresses": {
+            "description": "IP Addresses that we want to add to the Azure DB. 194.74.11.10 is work building,  77.245.66.210 is http://zupoct01 ",
+            "addresses": [
+                "0.0.0.0",
+                "194.74.11.10",
+                "77.245.66.210"
+            ]
+        },
+        "authenticationAuthRuleResourceId": "[resourceId('Microsoft.ServiceBus/namespaces/authorizationRules', variables('authenticationServiceBusName'), 'RootManageSharedAccessKey')]",
+        "failedLoginAttemptsCosmosDbName": "[concat(variables('baseName'), 'cdb')]"
+    },
+    "resources": [
+        {
+            "condition": "[not(equals(parameters('Environment'), 'dev'))]",
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2017-05-01",
+            "name": "[guid(variables('selectedRoleIds')[copyIndex()].role, variables('selectedRoleIds')[copyIndex()].principal, resourceGroup().id)]",
+            "copy": {
+                "name": "roleCopy",
+                "count": "[length(variables('selectedRoleIds'))]"
+            },
+            "properties": {
+                "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', variables('selectedRoleIds')[copyIndex()].role)]",
+                "principalId": "[variables('selectedRoleIds')[copyIndex()].principal]",
+                "scope": "[resourceGroup().id]"
+            }
+        },
+        {
+            "name": "[variables('servicePlanName')]",
+            "type": "Microsoft.Web/serverfarms",
+            "apiVersion": "2016-09-01",
+            "location": "[resourceGroup().location]",
+            "properties": {},
+            "sku": {
+                "name": "[parameters('ServicePlanSku')]"
+            }
+        },
+        {
+            "name": "[variables('websiteName')]",
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2016-08-01",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[concat('Microsoft.Web/serverfarms/', variables('servicePlanName'))]"
+            ],
+            "properties": {
+                "name": "[variables('websiteName')]",
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms/', variables('servicePlanName'))]",
+                "httpsOnly": true
+            },
+            "resources": [
+                {
+                    "apiVersion": "2015-08-01",
+                    "name": "appsettings",
+                    "type": "config",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Web/Sites', variables('webSiteName'))]"
+                    ],
+                    "properties": {
+                        "APPINSIGHTS_INSTRUMENTATIONKEY": "[reference(concat('microsoft.insights/components/', variables('appInsightsName'))).InstrumentationKey]"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "[variables('appInsightsName')]",
+            "type": "microsoft.insights/components",
+            "apiVersion": "2015-05-01",
+            "location": "[parameters('ApplicationInsightsLocation')]",
+            "properties": {
+                "Application_Type": "web"
+            }
+        },
+        {
+            "name": "[variables('sqlServerName')]",
+            "type": "Microsoft.Sql/servers",
+            "apiVersion": "2015-05-01-preview",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "administratorLogin": "[variables('sqlServerAdminName')]",
+                "administratorLoginPassword": "[variables('sqlServerAdminPassword')]"
+            }
+        },
+        {
+            "name": "[concat(variables('sqlServerName'), '/', variables('databaseName'))]",
+            "type": "Microsoft.Sql/servers/databases",
+            "apiVersion": "2015-05-01-preview",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[concat('Microsoft.Sql/servers/', variables('sqlServerName'))]"
+            ],
+            "properties": {
+                "edition": "Basic",
+                "collation": "SQL_Latin1_General_CP1_CI_AS",
+                "maxSizeBytes": "1073741824",
+                "requestedServiceObjectiveName": "Basic"
+            }
+        },
+        {
+            "name": "[concat(variables('sqlServerName'), '/', variables('firewallIpAddresses').addresses[copyIndex()])]",
+            "type": "Microsoft.Sql/servers/firewallRules",
+            "apiVersion": "2015-05-01-preview",
+            "dependsOn": [
+                "[concat('Microsoft.Sql/servers/', variables('sqlServerName'))]"
+            ],
+            "copy": {
+                "name": "firewallLoop",
+                "count": "[length(variables('firewallIpAddresses').addresses)]"
+            },
+            "properties": {
+                "startIpAddress": "[variables('firewallIpAddresses').addresses[copyIndex()]]",
+                "endIpAddress": "[variables('firewallIpAddresses').addresses[copyIndex()]]"
+            }
+        },
+        {
+            "name": "[variables('whitelistCosmosDbName')]",
+            "type": "Microsoft.DocumentDB/databaseAccounts",
+            "apiVersion": "2015-04-08",
+            "location": "[resourceGroup().location]",
+            "properties": {
+              "consistencyPolicy": {
+                "defaultConsistencyLevel": "Session"
+              },
+              "locations": [
+                {
+                  "locationName": "[resourceGroup().location]"
+                }
+              ],
+              "capabilities": [
+                {
+                    "name": "EnableTable"
+                }
+              ],
+              "databaseAccountOfferType": "Standard"
+            }
+        },
+        {
+            "apiVersion": "[variables('serviceBusApiVersion')]",
+            "name": "[variables('authenticationServiceBusName')]",
+            "type": "Microsoft.ServiceBus/Namespaces",
+            "location": "[resourceGroup().location]",
+            "kind": "Messaging",
+            "sku": {
+                "name": "[parameters('ServiceBusSku')]"
+            },
+            "resources": [
+                {
+                    "apiVersion": "[variables('serviceBusApiVersion')]",
+                    "name": "[parameters('AuthenticationTopicName')]",
+                    "type": "Topics",
+                    "dependsOn": [
+                        "[concat('Microsoft.ServiceBus/namespaces/', variables('authenticationServiceBusName'))]"
+                    ],
+                    "properties": {
+                        "path": "[parameters('AuthenticationTopicName')]"
+                    },
+                    "resources": [
+                        {
+                            "apiVersion": "[variables('serviceBusApiVersion')]",
+                            "name": "[variables('authenticationServiceSubscriptionName')]",
+                            "type": "Subscriptions",
+                            "dependsOn": [
+                                "[parameters('AuthenticationTopicName')]"
+                            ],
+                            "properties": {}
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "[variables('failedLoginAttemptsCosmosDbName')]",
+            "type": "Microsoft.DocumentDB/databaseAccounts",
+            "apiVersion": "2015-04-08",
+            "location": "[resourceGroup().location]",
+            "properties": {
+              "consistencyPolicy": {
+                "defaultConsistencyLevel": "Session"
+              },
+              "locations": [
+                {
+                  "locationName": "[resourceGroup().location]"
+                }
+              ],
+              "capabilities": [
+                {
+                    "name": "EnableTable"
+                }
+              ],
+              "databaseAccountOfferType": "Standard"
+            }
+        }
+    ],
+    "outputs": {
+        "AuthenticationServerFarmId": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.Web/serverfarms', variables('servicePlanName'))]"
+        },
+        "AuthenticationWebsiteName": {
+            "type": "string",
+            "value": "[variables('websiteName')]"
+        },
+        "AuthenticationWebsiteUrl": {
+            "type": "string",
+            "value": "[concat('https://',reference(resourceId('Microsoft.Web/sites', variables('WebsiteName'))).defaultHostName)]"
+        },
+        "AuthenticationAppInsightsInstrumentationKey": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.Insights/components', variables('appInsightsName'))).InstrumentationKey]"
+        },
+        "AuthenticationSqlServerName": {
+            "type": "string",
+            "value": "[variables('sqlServerName')]"
+        },
+        "AuthenticationDatabaseName": {
+            "type": "string",
+            "value": "[variables('databaseName')]"
+        },
+        "AuthenticationSqlServerAdminUsername": {
+            "type": "string",
+            "value": "[variables('sqlServerAdminName')]"
+        },
+        "AuthenticationSqlServerAdminPassword": {
+            "type": "string",
+            "value": "[variables('sqlServerAdminPassword')]"
+        },
+        "AuthenticationSqlServerAdminConnectionString": {
+            "type": "string",
+            "value": "[concat('Server=tcp:', reference(variables('sqlServerName')).fullyQualifiedDomainName, ',1433;Initial Catalog=', variables('databaseName'), ';User ID=', variables('sqlServerAdminName'), ';Password=', variables('sqlServerAdminPassword'), ';Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;')]"
+        },
+        "AuthenticationWhitelistCosmosDbConnectionString": {
+            "type": "string",
+            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('whitelistCosmosDbName'), ';AccountKey=', listKeys(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('whitelistCosmosDbName')), '2015-11-06').primaryMasterKey, ';TableEndpoint=', reference(concat('Microsoft.DocumentDb/databaseAccounts/', variables('whitelistCosmosDbName'))).tableEndpoint, ';')]"
+        },
+        "AuthenticationServiceBusConnectionString": {
+            "type": "string",
+            "value": "[listkeys(variables('authenticationAuthRuleResourceId'), variables('serviceBusApiVersion')).primaryConnectionString]"
+        },
+        "AuthenticationServiceBusName": {
+            "type": "string",
+            "value": "[variables('authenticationServiceBusName')]"
+        },
+        "AuthenticationServiceSubscriptionName": {
+            "type": "string",
+            "value": "[variables('authenticationServiceSubscriptionName')]"
+        },
+        "FailedLoginAttemptsDbConnectionString": {
+            "type": "string",
+            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('failedLoginAttemptsCosmosDbName'), ';AccountKey=', listKeys(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('failedLoginAttemptsCosmosDbName')), '2015-11-06').primaryMasterKey, ';TableEndpoint=', reference(concat('Microsoft.DocumentDb/databaseAccounts/', variables('failedLoginAttemptsCosmosDbName'))).tableEndpoint, ';')]"
+        }
+    }
+}

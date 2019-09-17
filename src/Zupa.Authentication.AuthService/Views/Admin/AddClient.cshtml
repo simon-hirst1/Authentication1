@@ -1,0 +1,68 @@
+﻿@model ClientViewModel
+@{
+    ViewData["Title"] = "Add Client";
+}
+
+<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.2.0.min.js"></script>
+<script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.16.0/jquery.validate.min.js"></script>
+<script src="https://ajax.aspnetcdn.com/ajax/jquery.validation.unobtrusive/3.2.6/jquery.validate.unobtrusive.min.js"></script>
+
+<h2>Add Client</h2>
+<br />
+<form asp-action="AddClient">
+    <div class="form-horizontal">
+        <div class="form-group">
+            <label asp-for="ClientId" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="ClientId" class="form-control" />
+                <span asp-validation-for="ClientId" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="ClientName" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="ClientName" class="form-control" />
+                <span asp-validation-for="ClientName" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="AllowAccessTokensViaBrowser" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="AllowAccessTokensViaBrowser" class="checkbox" checked="checked" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="CorsOrigin" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="CorsOrigin" class="form-control" />
+                <span asp-validation-for="CorsOrigin" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="RedirectUri" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="RedirectUri" class="form-control" />
+                <span asp-validation-for="RedirectUri" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="PostLogoutRedirectUri" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="PostLogoutRedirectUri" class="form-control" />
+                <span asp-validation-for="PostLogoutRedirectUri" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="ApiScopes" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="ApiScopes" class="form-control" />
+                <span asp-validation-for="ApiScopes" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <button type="submit" value="Add" class="btn btn-default"> Add Me </button>
+            </div>
+        </div>
+    </div>
+</form>

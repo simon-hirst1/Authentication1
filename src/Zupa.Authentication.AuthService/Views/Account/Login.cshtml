@@ -1,0 +1,82 @@
+@model LoginModel
+@using Microsoft.Extensions.Options
+@using Zupa.Authentication.AuthService.Configuration
+@using Zupa.Authentication.Common
+
+@inject SignInManager<IdentityUser> SignInManager
+@inject IOptions<AppInsightsSettings> AppInsightsOptions
+@inject Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet JavaScriptSnippet
+
+@{
+    ViewData["Title"] = "Log in";
+    var signedOut = ViewData["signed-out"] != null && (bool)ViewData["signed-out"];
+    Layout = "_AccountLayout";
+}
+
+<div class="d-flex justify-content-center">
+    
+    @if (SignInManager.IsSignedIn(User) && !signedOut)
+    {
+        <h2>Logged In</h2>
+    }
+    else
+    {
+        <h2>Log in</h2>
+        <h2>&nbsp;|&nbsp;</h2>
+        <a asp-area="" asp-controller="Account" asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]" method="get">
+            <h2>Register</h2>
+        </a>
+    }
+</div>
+
+<hr />
+<div class="d-flex flex-column justify-content-center align-items-center text-center">
+    @if (SignInManager.IsSignedIn(User) && !signedOut)
+    {
+        <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-center">
+                <a id="link" asp-area="" asp-controller="Account" asp-action="LinkAccount">Link Account</a>
+            </li>
+            @if (User.IsInRole(RoleConstants.AdminRole))
+            {
+                <li class="list-group-item d-flex justify-content-center">
+                    <a id="admin" asp-area="" asp-controller="Admin" asp-action="Index">Admin Management</a>
+                </li>
+            }
+            <li class="list-group-item d-flex justify-content-center">
+                <a id="logout" asp-area="" asp-controller="Account" asp-action="Logout" method="get">Logout</a>
+            </li>
+        </ul>
+    }
+    else
+    {
+        @if ((bool)@ViewData["TooManyRequests"])
+        {
+            <div>
+                <span>
+                    There have been several failed attempts to sign in from this IP address. Please try again later.
+                </span>
+            </div>
+        }
+        else
+        {
+            <form asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="w-75">
+                <div asp-validation-summary="All" class="text-danger"></div>
+                <div class="form-group">
+                    <input asp-for="Email" class="form-control" placeholder="Email" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <input asp-for="Password" class="form-control" placeholder="Password" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+                <div class="form-group d-flex justify-content-center">
+                    <a asp-area="" asp-controller="Account" asp-action="ForgotPassword">Forgot password?</a>
+                </div>
+                <div class="form-group d-flex justify-content-center">
+                    <button id="submit" type="submit" class="btn btn-primary">Log in</button>
+                </div>
+            </form>
+        }
+    }
+</div>

@@ -1,0 +1,49 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+	<TargetFramework>netcoreapp2.1</TargetFramework>
+	<PackageId>Zupa.Authentication.AuthService</PackageId>
+	<Version>1.21.4</Version>
+	<Authors>Matt Ridgway, Nick Smirnoff, Andrei Alexandru, Russ Giles, Oliver Goldsmith, Mara Blaga, Chris Moses, Sandra Hayward, Matthew James, Chris Marshall, Scott Wright, James Privett, Dave Turner, Mooney Hussain</Authors>
+	<Company>ZupaTech</Company>
+	<Product>Zupa</Product>
+	<UserSecretsId>b9822f88-d5ef-4cc9-b9e0-081368f76edf</UserSecretsId>
+	<ApplicationInsightsResourceId>/subscriptions/d8857d4c-cca0-469f-a60d-f1a64c373395/resourcegroups/Monitoring/providers/microsoft.insights/components/ZupaAuthentication-dev</ApplicationInsightsResourceId>
+	<ApplicationInsightsAnnotationResourceId>/subscriptions/d8857d4c-cca0-469f-a60d-f1a64c373395/resourcegroups/Monitoring/providers/microsoft.insights/components/ZupaAuthentication-dev</ApplicationInsightsAnnotationResourceId>
+  </PropertyGroup>
+
+  <ItemGroup>
+	<PackageReference Include="IdentityServer4.AspNetIdentity" Version="2.0.0" />
+	<PackageReference Include="IdentityServer4.EntityFramework" Version="2.1.1" />
+	<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.1.1" />
+	<PackageReference Include="Microsoft.AspNetCore.App" />
+	<PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.1.11" />
+	<PackageReference Include="Microsoft.Azure.ServiceBus" Version="3.1.1" />
+	<PackageReference Include="Microsoft.Extensions.Http" Version="2.1.1" />
+	<PackageReference Include="Microsoft.Extensions.SecretManager.Tools" Version="2.0.0" />
+	<PackageReference Include="Sodium.Core" Version="1.2.0" />
+	<PackageReference Include="Zupa.Libraries.CosmosTableStorageClient" Version="1.0.0" />
+	<PackageReference Include="Zupa.Libraries.ServiceBus.ServiceBusClient" Version="2.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<ProjectReference Include="..\Zupa.Authentication.Common\Zupa.Authentication.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<WCFMetadata Include="Connected Services" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<Content Update="Views\Account\_ViewStart.cshtml">
+	  <Pack>$(IncludeRazorContentInPack)</Pack>
+	</Content>
+	<Content Update="Views\Shared\_AccountLayout.cshtml">
+	  <Pack>$(IncludeRazorContentInPack)</Pack>
+	</Content>
+  </ItemGroup>
+
+  <ItemGroup>
+	<Folder Include="wwwroot\images\" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,30 @@
+﻿@model ApiResourceViewModel
+@{
+    ViewData["Title"] = "Add Api Resource";
+}
+
+<h2>Add Api Resource</h2>
+<br />
+<form asp-action="AddApiResource">
+    <div class="form-horizontal">
+        <div class="form-group">
+            <label asp-for="Name" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="DisplayName" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="DisplayName" class="form-control" />
+                <span asp-validation-for="DisplayName" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <button type="submit" value="Add" class="btn btn-default"> Add Me </button>
+            </div>
+        </div>
+    </div>
+</form>

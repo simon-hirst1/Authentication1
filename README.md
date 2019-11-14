@@ -83,25 +83,27 @@ When first cloning the repo you should do the following:
 
 ```json
 {
-  "FacebookAuthentication": {
-    "FacebookKey": "Swap for real key",
-    "FacebookSecret": "Swap for real secret",
-  },
-  "GoogleAuthentication": {
-    "GoogleKey": "Swap for real key",
-    "GoogleSecret": "swap for real secret",
-  },
-  "TwitterAuthentication": {
-    "TwitterKey": "Swap for real key",
-    "TwitterSecret": "Swap for real secret"
-  },
-  "ServiceBusConnection": {
-    "ServiceBusConnectionString": "Swap for real connection string",
-    "QueueName": "Swap for real queue name"
-  },
-   "AuthenticationTopicClientSettings": {
-    "ServiceBusConnectionString": "Swap for real connection string",
-    "TopicName":  "Swap for real topic name"
+  "Authentication": {
+    "FacebookAuthentication": {
+       "FacebookKey": "Swap for real key",
+       "FacebookSecret": "Swap for real secret",
+    },
+    "GoogleAuthentication": {
+       "GoogleKey": "Swap for real key",
+       "GoogleSecret": "swap for real secret",
+    },
+    "TwitterAuthentication": {
+       "TwitterKey": "Swap for real key",
+       "TwitterSecret": "Swap for real secret"
+    },
+    "AuthenticationTopicClientSettings": {
+      "ServiceBusConnectionString": "Swap for real connection string",
+      "TopicName": "Swap for real topic name"
+    },
+    "EmailServiceBusConnection": {
+      "ServiceBusConnectionString": "Swap for real connection string",
+      "QueueName": "Swap for real queue name"
+    }
   }
 }
 ```

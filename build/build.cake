@@ -19,7 +19,11 @@ var octopusDeployUrl = EnvironmentVariable("OctopusDeployUrl");
 var octopusDeployApiKey = EnvironmentVariable("OctopusDeployApiKey");
 
 var defaultBranchName = "master";
+var storyBranchPrefix = "story";
 var isMasterBranch = false;
+var isStoryBranch = false;
+var buildTimeStamp = DateTime.Now.ToString("yyyyMMddHHmmss");
+var repositoryDirectoryPath = DirectoryPath.FromString(solutionFolder);
 
 Task("Default")
     .IsDependentOn("GetBranchName")
@@ -33,8 +37,8 @@ Task("Default")
 
 Task("GetBranchName")
     .Does(() => {       
-        var repositoryDirectoryPath = DirectoryPath.FromString(solutionFolder);
         isMasterBranch = (GitBranchCurrent(repositoryDirectoryPath).FriendlyName == defaultBranchName);
+        isStoryBranch = (GitBranchCurrent(repositoryDirectoryPath).FriendlyName.StartsWith(storyBranchPrefix));
 });
 
 Task("clean")
@@ -105,6 +109,7 @@ Task("copyDependencies")
     });
 
 Task("pack")
+    .WithCriteria(() => isMasterBranch || isStoryBranch)
     .IsDependentOn("copyDependencies")
     .Does(() => {
         foreach(var project in projectFiles)
@@ -116,25 +121,49 @@ Task("pack")
                 OutFolder = artifactsFolder,
                 Author = XmlPeek(project.FullPath, "Project/PropertyGroup/Company"),
                 Title = packageId,
-                Version = XmlPeek(project.FullPath, "Project/PropertyGroup/Version")
+                Version = GetPackageVersion(project),
+                Description = GetPackageDescription(project)
             };
             OctoPack(packageId, octoSettings);
         }
-});
+    });
 
 Task("push")
-    .WithCriteria(() => isMasterBranch)
+    .WithCriteria(() => isMasterBranch || isStoryBranch)
+    .WithCriteria(() => octopusDeployUrl != null && octopusDeployApiKey != null)
     .Does(() => {
         foreach(var project in projectFiles)
         {
             var url = octopusDeployUrl;
             var apiKey = octopusDeployApiKey;
             var settings = new OctopusPushSettings();
-            var packageVersion = XmlPeek(project.FullPath, "Project/PropertyGroup/Version");
+            var packageVersion = GetPackageVersion(project);
             var packageId =  XmlPeek(project.FullPath, "Project/PropertyGroup/PackageId");
             var package = $"{artifactsFolder}/{packageId}.{packageVersion}.nupkg";
             OctoPush(url, apiKey, package, settings);
         }
 });
+
+public string GetPackageVersion(FilePath project) {
+    if (isMasterBranch)
+    {
+        return XmlPeek(project.FullPath, "Project/PropertyGroup/Version");
+    } else if (isStoryBranch){
+        return $"{XmlPeek(project.FullPath, "Project/PropertyGroup/Version")}-rc+{buildTimeStamp}";
+    }
+ 
+    return null;
+}
+
+public string GetPackageDescription(FilePath project) {
+    if (isMasterBranch)
+    {
+        return $"Build from {XmlPeek(project.FullPath, "Project/PropertyGroup/PackageId")} on branch: {GitBranchCurrent(repositoryDirectoryPath).FriendlyName}";
+    } else if (isStoryBranch){
+        return $"Test build from {XmlPeek(project.FullPath, "Project/PropertyGroup/PackageId")} on branch: `{GitBranchCurrent(repositoryDirectoryPath).FriendlyName}`";
+    }
+ 
+    return null;
+}
 
 RunTarget(target);

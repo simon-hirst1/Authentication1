@@ -3,7 +3,7 @@ trigger:
 - task/*
 
 pool:
-  vmImage: 'windows-latest'
+  vmImage: ZupaDeploymentPool
 
 steps:
 - task: cake-build.cake.cake-build-task.Cake@0
